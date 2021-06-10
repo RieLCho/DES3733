@@ -1,4 +1,5 @@
 # 2019112130 Yangjin Cho
+# 02_MNIST_FGSM_DEFEND
 # Independant Capstone AI Model Security
 import keras
 from keras.models import Sequential
@@ -8,6 +9,7 @@ import numpy as np
 from art.attacks.evasion import FastGradientMethod
 from art.estimators.classification import KerasClassifier
 from art.utils import load_mnist
+from art.defences.trainer import AdversarialTrainer
 
 # Step 1: Load the MNIST dataset
 (x_train, y_train), (x_test, y_test), min_pixel_value, max_pixel_value = load_mnist()
@@ -35,13 +37,20 @@ classifier.fit(x_train, y_train, batch_size=64, nb_epochs=3)
 # Step 5: Evaluate the ART classifier on benign test examples
 predictions = classifier.predict(x_test)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-print("Accuracy on benign test examples: {}%".format(accuracy * 100))
+print("정상적으로 학습시킨 MNIST 모델의 정확도: {}%".format(accuracy * 100))
+
+
 
 # Step 6: Generate adversarial test examples
 attack = FastGradientMethod(estimator=classifier, eps=0.2)
 x_test_adv = attack.generate(x=x_test)
 
-# Step 7: Evaluate the ART classifier on adversarial test examples
-predictions = classifier.predict(x_test_adv)
+# Step 7: AdversarialTrainer
+# Paper link: https://arxiv.org/abs/1705.07204
+AdversarialTrainer(classifier=classifier, attacks=attack, ratio=0.5).fit(x=x_train, y=y_train, batch_size=64, nb_epochs=3)
+
+
+# Step 8: Evaluate the ART classifier on adversarial test examples
+predictions = AdversarialTrainer(classifier=classifier, attacks=attack, ratio=0.5).predict(x=x_test_adv)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-print("Accuracy on adversarial test examples: {}%".format(accuracy * 100))
+print("AdversarialTrainer - FGSM을 방어한 후의 모델 정확도: {}%".format(accuracy * 100))

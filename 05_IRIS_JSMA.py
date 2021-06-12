@@ -2,6 +2,8 @@
 # 05_IRIS_JSMA_DEFEND
 # Independant Capstone AI Model Security
 import keras
+import time
+import datetime
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 import numpy as np
@@ -11,6 +13,7 @@ from art.estimators.classification import KerasClassifier
 from art.utils import load_iris
 from art.defences.trainer import AdversarialTrainer
 
+start = time.time()
 # Step 1: Load the IRIS dataset
 (x_train, y_train), (x_test, y_test), min_pixel_value, max_pixel_value = load_iris()
 
@@ -48,3 +51,8 @@ x_test_adv = attack.generate(x=x_test)
 predictions = classifier.predict(x_test_adv)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print("IRIS에 JSMA 공격을 가한 후 정확도: {}%".format(accuracy * 100))
+
+sec = time.time() - start
+times = str(datetime.timedelta(seconds=sec)).split(".")
+times = times[0]
+print(times)

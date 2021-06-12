@@ -2,6 +2,8 @@
 # 02_MNIST_FGSM_DEFEND
 # Independant Capstone AI Model Security
 import keras
+import time
+import datetime
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 import numpy as np
@@ -10,6 +12,8 @@ from art.attacks.evasion import FastGradientMethod
 from art.estimators.classification import KerasClassifier
 from art.utils import load_mnist
 from art.defences.trainer import AdversarialTrainer
+
+start = time.time()
 
 # Step 1: Load the MNIST dataset
 (x_train, y_train), (x_test, y_test), min_pixel_value, max_pixel_value = load_mnist()
@@ -32,25 +36,32 @@ model.compile(
 classifier = KerasClassifier(model=model, clip_values=(min_pixel_value, max_pixel_value), use_logits=False)
 
 # Step 4: Train the ART classifier
-classifier.fit(x_train, y_train, batch_size=64, nb_epochs=3)
+classifier.fit(x_train, y_train, batch_size=64, nb_epochs=20)
 
 # Step 5: Evaluate the ART classifier on benign test examples
 predictions = classifier.predict(x_test)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print("정상적으로 학습시킨 MNIST 모델의 정확도: {}%".format(accuracy * 100))
 
-
-
 # Step 6: Generate adversarial test examples
 attack = FastGradientMethod(estimator=classifier, eps=0.2)
 x_test_adv = attack.generate(x=x_test)
 
-# Step 7: AdversarialTrainer
+# Step 7: Evaluate the ART classifier on adversarial test examples
+predictions = classifier.predict(x_test_adv)
+accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
+print("MNIST에 FGSM 공격을 가한 후 정확도: {}%".format(accuracy * 100))
+
+# Step 8: Train with AdversarialTrainer for accuracy comparision
 # Paper link: https://arxiv.org/abs/1705.07204
-AdversarialTrainer(classifier=classifier, attacks=attack, ratio=0.5).fit(x=x_train, y=y_train, batch_size=64, nb_epochs=3)
+AdversarialTrainer(classifier=classifier, attacks=attack, ratio=0.5).fit(x=x_train, y=y_train, batch_size=64, nb_epochs=20)
 
-
-# Step 8: Evaluate the ART classifier on adversarial test examples
+# Step 9: Evaluate the ART classifier on adversarial test examples
 predictions = AdversarialTrainer(classifier=classifier, attacks=attack, ratio=0.5).predict(x=x_test_adv)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print("AdversarialTrainer - FGSM을 방어한 후의 모델 정확도: {}%".format(accuracy * 100))
+
+sec = time.time() - start
+times = str(datetime.timedelta(seconds=sec)).split(".")
+times = times[0]
+print(times)

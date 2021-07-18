@@ -24,13 +24,8 @@ IBM사에서 오픈소스로 개발을 진행하고 있는 Adversarial Robustnes
 
 ### 시작은 무조건 공식문서부터
 
-[https://youtu.be/hWwJF-fU2Lg](https://youtu.be/hWwJF-fU2Lg)
-
-<iframe src="https://www.youtube.com/embed/hWwJF-fU2Lg" width="480" height="360" frameborder="0" allowfullscreen="true"></iframe>
-
-시간되시면 영상 한번 봐주세요
-
-제시된 ART(adversarial robustness toolbox)를 가장 잘 아는 사람은 누구일까요? 바로 해당 라이브러리를 작성한 사람들입니다. ART의 경우는 문서화가 참 잘 되어 있는 편이라, 무조건 RTFM하세요.
+제시된 ART(adversarial robustness toolbox)를 가장 잘 아는 사람은 누구일까요? 바로 해당 라이브러리를 작성한 사람들입니다. 
+ART의 경우는 문서화가 참 잘 되어 있는 편이라, 무조건 RTFM 추천드립니다.
 
 [https://adversarial-robustness-toolbox.readthedocs.io/en/latest/](https://adversarial-robustness-toolbox.readthedocs.io/en/latest/)
 
